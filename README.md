@@ -1,32 +1,27 @@
-# Crowsi Host Network Sensor
+# crowsi-host-network-sensor
 
-`crowsi-host-network-sensor` is an independent, read-only Linux network
-namespace sensor. It complements `crowsi-network-observer`; it does not replace,
-import, or extend that repository.
+Observe Linux host networking and compare it with an explicit baseline.
 
-## Observed metadata
+## What you can do
 
-The production sensor has no configurable source path. It performs bounded
-reads of exactly:
+- Capture bounded host-network metadata.
+- Evaluate differences against a supplied baseline.
 
-- `/proc/net/tcp`
-- `/proc/net/tcp6`
-- `/proc/net/udp`
-- `/proc/net/udp6`
-- `/proc/net/route`
-- `/proc/net/ipv6_route`
+## Current scope
 
-TCP rows are retained only in LISTEN state. UDP rows with a nonzero local port
-are treated as bound sockets because UDP has no TCP-style LISTEN state. Each
-address is immediately reduced to `loopback`, `specific`, or `wildcard`; the
-address value is discarded. Routes are reduced to IPv4/IPv6 default-route
-presence.
+The sensor observes the host; it does not reconfigure interfaces or infer an approved baseline.
 
-Output never contains packets, payloads, local or remote addresses, remote
-endpoints, interface names, PIDs, UIDs, inodes, process data, hostnames, or
-credentials. Each procfs file is capped at 1 MiB, tables at 8192 rows, and
-listener results at 4096 unique metadata records. Any unavailable, oversized,
-non-UTF-8, or malformed source discards partial results and emits `unknown`.
+Package distribution is not activated by this documentation. Use the checked-in source and the declared dependency versions; published availability must be verified separately.
+
+## Getting started
+
+Install Rust 1.97 or newer and make the declared dependencies available. Use the configured private registry when a dependency is not distributed publicly. Run from this repository:
+
+```sh
+cargo test --locked
+```
+
+## Examples and interface details
 
 ## Commands
 
@@ -47,24 +42,10 @@ default-route presence. It preserves `unknown` rather than comparing incomplete
 data. Baseline, Snapshot, and Finding JSON Schemas reject unknown fields and
 incompatible v1 values.
 
-## Trust and coverage boundary
+## Documentation and source
 
-Every output declares `external_actions: false` and
-`signal_trust: "unsigned-local"`. The sensor is not an IDS, a PIP authority, a
-PEP, an isolation verifier, or proof that a host is uncompromised. It sees only
-the caller's current Linux network namespace and can be evaded or falsified by
-software with sufficient local privilege.
+[Interface reference](docs/interface-reference.md)
 
-This signal must never promote standard Coela coverage, Crowsi control coverage,
-or any asset state to `controlled`. A consumer may display it only as
-supplemental unsigned local evidence. Signed authorization, independent
-coverage, provider-specific enforcement, and verified receipts remain separate
-requirements.
+[Usage guide](docs/getting-started.md)
 
-## Local verification
-
-```bash
-# WONDERLAND_ROOT is the workspace checkout root.
-"$WONDERLAND_ROOT/bin/verify-repositories" --rust --tier standard
-node ${WONDERLAND_ROOT}/tools/check-source-layout.mjs .
-```
+[Examples](examples) · [Schemas](schemas) · [Implementation and public interfaces](src) · [Verification cases](tests) · [Contributing](CONTRIBUTING.md) · [Security reporting](SECURITY.md) · [License](LICENSE) · [Attribution notices](NOTICE)
